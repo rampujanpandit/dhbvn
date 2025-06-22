@@ -196,11 +196,12 @@
         energyPerMonth = monthlyUnits * 2;
       } else if (monthlyUnits <= 100) {
         energyPerMonth = 50 * 2 + (monthlyUnits - 50) * 2.5;
+      } else if (monthlyUnits <= 200) {
+        energyPerMonth = (50 * 2) + (50 * 2.5) + (monthlyUnits - 100) * 3.25;
+      } else if (monthlyUnits <= 400) {
+        energyPerMonth = (50 * 2) + (50 * 2.5) + (100 * 3.25) + (monthlyUnits - 200) * 4.7;
       } else {
-        result.style.display = 'block';
-        result.style.color = 'red';
-        result.innerText = "Only valid for Category I (≤100 units/month).";
-        return;
+        energyPerMonth = (50 * 2) + (50 * 2.5) + (100 * 3.25) + (200 * 4.7) + (monthlyUnits - 400) * 5.7;
       }
 
       const totalEnergy = energyPerMonth * 2;
