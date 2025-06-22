@@ -218,41 +218,55 @@
       const monthlyUnits = units / 2;
       let energyPerMonth = 0;
       let breakdown = "<strong>Energy Charge Breakdown (1 month):</strong><br>";
+      let fixedMonthly = 0;
 
-      if (monthlyUnits <= 50) {
-        energyPerMonth = monthlyUnits * 2;
-        breakdown += `${monthlyUnits.toFixed(2)} x ₹2.00 = ₹${(monthlyUnits * 2).toFixed(2)}<br>`;
-      } else if (monthlyUnits <= 100) {
-        energyPerMonth = 50 * 2 + (monthlyUnits - 50) * 2.5;
-        breakdown += `50 x ₹2.00 = ₹100.00<br>`;
-        breakdown += `${(monthlyUnits - 50).toFixed(2)} x ₹2.50 = ₹${((monthlyUnits - 50) * 2.5).toFixed(2)}<br>`;
-      } else if (monthlyUnits <= 200) {
-        energyPerMonth = (50 * 2) + (50 * 2.5) + (monthlyUnits - 100) * 3.25;
-        breakdown += `50 x ₹2.00 = ₹100.00<br>`;
-        breakdown += `50 x ₹2.50 = ₹125.00<br>`;
-        breakdown += `${(monthlyUnits - 100).toFixed(2)} x ₹3.25 = ₹${((monthlyUnits - 100) * 3.25).toFixed(2)}<br>`;
-      } else if (monthlyUnits <= 400) {
-        energyPerMonth = (50 * 2) + (50 * 2.5) + (100 * 3.25) + (monthlyUnits - 200) * 4.7;
-        breakdown += `50 x ₹2.00 = ₹100.00<br>`;
-        breakdown += `50 x ₹2.50 = ₹125.00<br>`;
-        breakdown += `100 x ₹3.25 = ₹325.00<br>`;
-        breakdown += `${(monthlyUnits - 200).toFixed(2)} x ₹4.70 = ₹${((monthlyUnits - 200) * 4.7).toFixed(2)}<br>`;
+      if (monthlyUnits <= 100) {
+        // ✅ Category I
+        fixedMonthly = credit ? 0 : 115;
+
+        if (monthlyUnits <= 50) {
+          energyPerMonth = monthlyUnits * 2.00;
+          breakdown += `${monthlyUnits.toFixed(2)} x ₹2.00 = ₹${(monthlyUnits * 2.00).toFixed(2)}<br>`;
+        } else {
+          energyPerMonth = (50 * 2.00) + (monthlyUnits - 50) * 2.50;
+          breakdown += `50 x ₹2.00 = ₹100.00<br>`;
+          breakdown += `${(monthlyUnits - 50).toFixed(2)} x ₹2.50 = ₹${((monthlyUnits - 50) * 2.50).toFixed(2)}<br>`;
+        }
       } else {
-        energyPerMonth = (50 * 2) + (50 * 2.5) + (100 * 3.25) + (200 * 4.7) + (monthlyUnits - 400) * 5.7;
-        breakdown += `50 x ₹2.00 = ₹100.00<br>`;
-        breakdown += `50 x ₹2.50 = ₹125.00<br>`;
-        breakdown += `100 x ₹3.25 = ₹325.00<br>`;
-        breakdown += `200 x ₹4.70 = ₹940.00<br>`;
-        breakdown += `${(monthlyUnits - 400).toFixed(2)} x ₹5.70 = ₹${((monthlyUnits - 400) * 5.7).toFixed(2)}<br>`;
+        // ✅ Category II
+        fixedMonthly = credit ? 0 : 125;
+        let remaining = monthlyUnits;
+
+        if (remaining > 0) {
+          const slab = Math.min(remaining, 150);
+          energyPerMonth += slab * 2.75;
+          breakdown += `${slab} x ₹2.75 = ₹${(slab * 2.75).toFixed(2)}<br>`;
+          remaining -= slab;
+        }
+        if (remaining > 0) {
+          const slab = Math.min(remaining, 100);
+          energyPerMonth += slab * 5.25;
+          breakdown += `${slab} x ₹5.25 = ₹${(slab * 5.25).toFixed(2)}<br>`;
+          remaining -= slab;
+        }
+        if (remaining > 0) {
+          const slab = Math.min(remaining, 250);
+          energyPerMonth += slab * 6.30;
+          breakdown += `${slab} x ₹6.30 = ₹${(slab * 6.30).toFixed(2)}<br>`;
+          remaining -= slab;
+        }
+        if (remaining > 0) {
+          energyPerMonth += remaining * 7.10;
+          breakdown += `${remaining} x ₹7.10 = ₹${(remaining * 7.10).toFixed(2)}<br>`;
+        }
       }
 
-      // 1 month charges
-      const fixedMonthly = credit ? 0 : 115;
+      // ✅ Monthly totals
       const dutyMonthly = energyPerMonth * 0.05;
       const taxMonthly = energyPerMonth * 0.02;
       const totalMonthly = energyPerMonth + fixedMonthly + dutyMonthly + taxMonthly;
 
-      // 2 months charges
+      // ✅ 2-Month totals
       const totalEnergy = energyPerMonth * 2;
       const fixed = fixedMonthly * 2;
       const duty = totalEnergy * 0.05;
@@ -280,6 +294,7 @@
     <hr><strong>Total Bill (2 months): ₹${total.toFixed(2)}</strong>
   `;
     }
+
 
 
     function calculateSecurityInterest() {
