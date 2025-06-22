@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DHBVN Multi-Module Estimator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      padding: 10px;
+      background: linear-gradient(to right, #e0eafc, #cfdef3);
+      margin: 0;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+      transition: transform 0.3s;
+    }
+    .container:hover {
+      transform: scale(1.01);
+    }
+    h2, h3 {
+      text-align: center;
+      color: #333;
+      margin-top: 0;
+    }
+    label {
+      font-weight: 600;
+      display: block;
+      margin-top: 10px;
+      color: #555;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+    button {
+      width: 100%;
+      background-color: #007bff;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .result {
+      background: #e6f4ea;
+      padding: 15px;
+      border-radius: 8px;
+      color: #2e7d32;
+      font-weight: 600;
+      display: none;
+      border-left: 5px solid #4caf50;
+    }
+    .icon {
+      text-align: center;
+      font-size: 40px;
+      margin-bottom: 10px;
+      color: #007bff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">🔌</div>
+    <h2>DHBVN Electricity Bill Estimator</h2>
+    <h3>1. Bill Calculator (Category I)</h3>
+    <label for="units">Enter 2-Month Units Consumed:</label>
+    <input type="number" id="units" min="1" placeholder="e.g., 170">
+    <label for="credit">Do you have previous credit?</label>
+    <select id="credit">
+      <option value="yes">Yes</option>
+      <option value="no" selected>No</option>
+    </select>
+    <button onclick="calculateBill()">Calculate Bill</button>
+    <div class="result" id="billResult"></div>
+  </div>
+
+  <div class="container">
+    <div class="icon">💰</div>
+    <h3>2. Interest on Security Deposit</h3>
+    <label for="securityAmount">Enter Security Deposit Amount:</label>
+    <input type="number" id="securityAmount" min="0" placeholder="e.g., 1500">
+    <label for="interestRate">Interest Rate (% per annum):</label>
+    <input type="number" id="interestRate" min="0" step="0.1" value="2.7">
+    <button onclick="calculateSecurityInterest()">Calculate Interest</button>
+    <div class="result" id="securityResult"></div>
+  </div>
+
+  <div class="container">
+    <div class="icon">📊</div>
+    <h3>3. Advance Payment Benefit</h3>
+    <label for="advanceAmount">Advance Amount (₹):</label>
+    <input type="number" id="advanceAmount" min="0" placeholder="e.g., 2000">
+    <label for="advanceRate">Interest Rate (% per annum):</label>
+    <input type="number" id="advanceRate" min="0" step="0.1" value="3">
+    <label for="months">Number of Months:</label>
+    <input type="number" id="months" min="1" value="12">
+    <button onclick="calculateAdvanceBenefit()">Calculate Advance Saving</button>
+    <div class="result" id="advanceResult"></div>
+  </div>
+
+  <script>
+    function calculateBill() {
+      const totalUnits = parseFloat(document.getElementById("units").value);
+      const hasCredit = document.getElementById("credit").value === "yes";
+      const result = document.getElementById("billResult");
+
+      if (isNaN(totalUnits) || totalUnits <= 0) {
+        result.style.display = 'block';
+        result.style.color = 'red';
+        result.innerText = "Please enter valid units.";
+        return;
+      }
+
+      const monthlyUnits = totalUnits / 2;
+      let energyPerMonth = 0;
+
+      if (monthlyUnits <= 50) {
+        energyPerMonth = monthlyUnits * 2.00;
+      } else if (monthlyUnits <= 100) {
+        energyPerPerMonth = 50 * 2.00 + (monthlyUnits - 50) * 2.50;
+      } else {
+        result.style.display = 'block';
+        result.style.color = 'red';
+        result.innerText = "Only valid for Category I (≤100 units/month).";
+        return;
+      }
+
+      const totalEnergy = energyPerMonth * 2;
+      const fixedCharge = hasCredit ? 0 : 115 * 2;
+      const duty = totalEnergy * 0.05;
+      const tax = totalEnergy * 0.02;
+      const finalBill = totalEnergy + fixedCharge + duty + tax;
+
+      result.style.display = 'block';
+      result.style.color = '#2e7d32';
+      result.innerHTML = `
+        Monthly Avg Units: <strong>${monthlyUnits.toFixed(2)}</strong><br>
+        Energy Charges: ₹<strong>${totalEnergy.toFixed(2)}</strong><br>
+        Fixed Charges: ₹<strong>${fixedCharge.toFixed(2)}</strong><br>
+        Electricity Duty (5%): ₹<strong>${duty.toFixed(2)}</strong><br>
+        Municipal Tax (2%): ₹<strong>${tax.toFixed(2)}</strong><br>
+        <hr><strong>Total Bill: ₹${finalBill.toFixed(2)}</strong>
+      `;
+    }
+
+    function calculateSecurityInterest() {
+      const amount = parseFloat(document.getElementById("securityAmount").value);
+      const rate = parseFloat(document.getElementById("interestRate").value);
+      const result = document.getElementById("securityResult");
+
+      if (isNaN(amount) || amount <= 0 || isNaN(rate)) {
+        result.style.display = 'block';
+        result.style.color = 'red';
+        result.innerText = "Please enter valid values.";
+        return;
+      }
+
+      const interest = amount * (rate / 100);
+      result.style.display = 'block';
+      result.style.color = '#2e7d32';
+      result.innerHTML = `Annual Interest on ₹${amount.toFixed(2)} at ${rate}% is <strong>₹${interest.toFixed(2)}</strong>`;
+    }
+
+    function calculateAdvanceBenefit() {
+      const advance = parseFloat(document.getElementById("advanceAmount").value);
+      const rate = parseFloat(document.getElementById("advanceRate").value);
+      const months = parseFloat(document.getElementById("months").value);
+      const result = document.getElementById("advanceResult");
+
+      if (isNaN(advance) || advance <= 0 || isNaN(rate) || isNaN(months) || months <= 0) {
+        result.style.display = 'block';
+        result.style.color = 'red';
+        result.innerText = "Enter valid advance, rate and months.";
+        return;
+      }
+
+      const fixedChargeSaving = 115 * months;
+      const interest = advance * (rate / 100) * (months / 12);
+      const totalSaving = fixedChargeSaving + interest;
+
+      result.style.display = 'block';
+      result.style.color = '#2e7d32';
+      result.innerHTML = `
+        Fixed Charges Saved: ₹<strong>${fixedChargeSaving.toFixed(2)}</strong><br>
+        Interest Earned: ₹<strong>${interest.toFixed(2)}</strong><br>
+        <hr><strong>Total Saving in ${months} months: ₹${totalSaving.toFixed(2)}</strong>
+      `;
+    }
+  </script>
+</body>
+</html>
